@@ -1,0 +1,5 @@
+USERNAME: Sophia Nicole A. Betito
+PIN: 12345
+-------
+HISTORY OF TRANSACTION:
+= 5000.00
