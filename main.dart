@@ -1,26 +1,58 @@
 import 'dart:io';
 import 'controller.dart';
 
-void main() {
-  operation operate = new operation();
+operation operate = new operation();
 
+void main() {
   //saves file content to the variable
   var content = File('accountRecord.txt').readAsLinesSync();
 
-  //login function with file content as parameter
-  userLogin(operate, content);
+  userLogin(content);
+  menuSection();
 }
 
-void userLogin(operation operate, var content) {
+//function for user login
+userLogin(var content) {
   var pin;
-
-  print('\n\n\t\tADET');
-  print('\tAUTOMATED TELLER MACHINE');
+  var val;
+  print('\n\n\t\tADET\n\tAUTOMATED TELLER MACHINE');
 
   do {
     stdout.write('\n>> Enter PIN (5 Digits): ');
     pin = stdin.readLineSync();
-
-    operate.accountValidation(pin);
-  } while (pin.length != 5 && content.elementAt(1) != pin);
+    val = operate.accountValidation(pin);
+  } while (val == 2);
 }
+
+//function for menu
+menuSection() {
+  var transaction;
+
+  print('\n\n\n\n\t ---- TRANSACTION ---- ');
+  print('\t|  [1] DEPOSIT        |');
+  print('\t|  [2] WITHDRAW       |');
+  print('\t|  [3] CHECK BALANCE  |');
+  print('\t|  [4] LOGOUT         |');
+  print('\t ---------------------');
+
+  do {
+    stdout.write('\n\t>> Transaction: ');
+    transaction = stdin.readLineSync();
+    if (int.parse(transaction) < 1 || int.parse(transaction) > 4) {
+      ErrorMessage();
+    }
+  } while (int.parse(transaction) < 1 || int.parse(transaction) > 4);
+
+  if (int.parse(transaction) == 1) {
+    operate.depositOption();
+  } else if (int.parse(transaction) == 2) {
+    operate.withdrawOption();
+  } else if (int.parse(transaction) == 3) {
+    operate.balanceOption();
+  } else {
+    print('\tLOGGING OUT\n\n');
+    return main();
+  }
+}
+
+ErrorMessage() => print("\tInvalid input. Try again.");

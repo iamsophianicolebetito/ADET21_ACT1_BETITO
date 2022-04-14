@@ -10,122 +10,92 @@ class operation {
   }
 
   //function to validate the pin from the file
-  void accountValidation(var pin) {
+  int accountValidation(var pin) {
+    var user = readFile().elementAt(0).split(' ');
     var password = readFile().elementAt(1).split(' ');
 
     if (password.elementAt(1) == pin) {
-      print("Account found");
-      menuSection();
+      print("\n\n\t\tWelcome back " + user.elementAt(1) + "!");
+      print("\tPlease choose your transaction");
+      return 1;
     } else {
-      print("Account not found");
-      return;
+      print("\tAccount not found. Try again.");
+      return 2;
     }
-  }
-
-  //function for menu
-  void menuSection() {
-    var transaction;
-
-    print('\n\n\n\n\t ---- TRANSACTION ---- ');
-    print('\t|  [1] DEPOSIT        |');
-    print('\t|  [2] WITHDRAW       |');
-    print('\t|  [3] CHECK BALANCE  |');
-    print('\t|  [4] LOGOUT         |');
-    print('\t ---------------------');
-
-    do {
-      do {
-        stdout.write('\n\t>> Transaction: ');
-        transaction = stdin.readLineSync();
-      } while (int.parse(transaction) < 1 || int.parse(transaction) > 4);
-
-      if (int.parse(transaction) == 1) {
-        depositOption();
-      }
-      if (int.parse(transaction) == 2) {
-        withdrawOption();
-      }
-      if (int.parse(transaction) == 3) {
-        balanceOption();
-      }
-      if (int.parse(transaction) == 4) {
-        print('\tLOGGING OUT\n\n');
-        return main();
-      }
-    } while (int.parse(transaction) != 4);
   }
 
   //function for depositing transaction
   void depositOption() {
-    var last = readFile().length; //to get the last element of the file
-    var sink = File('accountRecord.txt'); //for appending to the file
+    var balance = remainingBalance();
     print('\n\n\t\tDEPOSIT');
-
-    //last - 1; index starts with 0
-    var balance = readFile().elementAt(last - 1).split(' ');
-    balance = (double.parse(balance.elementAt(1)).toStringAsFixed(2));
 
     stdout.write('\n\t>> AMOUNT TO DEPOSIT: P ');
     var depositAmount =
         (double.parse(stdin.readLineSync()!).toStringAsFixed(2));
     var newBalance = double.parse(balance) + double.parse(depositAmount);
-
-    sink.writeAsStringSync(
-        '\n+ ' +
-            depositAmount +
-            '\n ------- '
-                '\n= ' +
-            newBalance.toStringAsFixed(2),
-        mode: FileMode.append);
-    print('\n\t>> UPDATED BALANCE: P ' + newBalance.toStringAsFixed(2));
+    sinkTransaction(1, depositAmount, newBalance);
+    print('\t>> UPDATED BALANCE: P ' + newBalance.toStringAsFixed(2));
 
     return menuSection();
   }
 
   //function containing withdrawal transaction
   void withdrawOption() {
-    var last = readFile().length; //to get the last element of the file
-    var sink = File('accountRecord.txt'); //for appending to the file
     var withdrawAmount;
-
+    var balance = remainingBalance();
     print('\n\n\t\tWITHDRAW');
-
-    //last - 1; index starts with 0
-    var balance = readFile().elementAt(last - 1).split(' ');
-    balance = (double.parse(balance.elementAt(1)).toStringAsFixed(2));
-
-    //prints current account balance
-    print('\t>> BALANCE: P ' + balance);
 
     do {
       stdout.write('\n\t>> AMOUNT TO WITHDRAW: P ');
       withdrawAmount = (double.parse(stdin.readLineSync()!).toStringAsFixed(2));
-    } while (double.parse(withdrawAmount) > double.parse(balance));
+
+      if (double.parse(balance) == 0.00 ||
+          double.parse(withdrawAmount) == double.parse(balance) ||
+          double.parse(withdrawAmount) > double.parse(balance)) {
+        TransError();
+      } else {
+        break;
+      }
+    } while (true);
 
     var newBalance = double.parse(balance) - double.parse(withdrawAmount);
-
-    sink.writeAsStringSync(
-        '\n- ' +
-            withdrawAmount +
-            '\n ------- '
-                '\n= ' +
-            newBalance.toStringAsFixed(2),
-        mode: FileMode.append);
-    print('\n\t>> UPDATED BALANCE: P ' + newBalance.toStringAsFixed(2));
-
+    sinkTransaction(2, withdrawAmount, newBalance);
     return menuSection();
   }
 
   //function for checking of balance transaction
   void balanceOption() {
-    var last = readFile().length; //to get the last element of the file
+    var balance = readFile().elementAt(readFile().length - 1).split(' ');
     print('\n\n\t\tBALANCE INQUIRY');
-
-    var balance = readFile().elementAt(last - 1).split(' ');
     balance = balance.elementAt(1);
-
     print('\t>> BALANCE: P ' + balance);
-
     return menuSection();
   }
+
+  //function that appends the transaction to the file
+  void sinkTransaction(var transaction, var amount, var newBalance) {
+    var sink = File('accountRecord.txt'); //for appending to the file
+
+    if (transaction == 1) {
+      sink.writeAsStringSync(
+          '\n+ ' + amount + '\n ------- \n= ' + newBalance.toStringAsFixed(2),
+          mode: FileMode.append);
+    } else {
+      sink.writeAsStringSync(
+          '\n- ' + amount + '\n ------- \n= ' + newBalance.toStringAsFixed(2),
+          mode: FileMode.append);
+    }
+  }
+
+  //function to check the remaining balance
+  remainingBalance() {
+    var balance = readFile().elementAt(readFile().length - 1).split(' ');
+    balance = (double.parse(balance.elementAt(1)).toStringAsFixed(2));
+    return balance;
+  }
+
+  checkBalance(var amount) {}
 }
+
+ErrorMessage() => print("\tInvalid input. \n\tTry again.");
+TransError() => print("\tThat exceeds the allowable amount. \n\tTry again.");
