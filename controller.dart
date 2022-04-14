@@ -2,12 +2,20 @@ import 'dart:io';
 import 'main.dart';
 
 class operation {
-  void accountValidation(var pin, var content) {
-    var password = content.elementAt(1).split(' ');
+  //function that reads the text file
+  readFile() {
+    //saves file content to the variable
+    var content = File('accountRecord.txt').readAsLinesSync();
+    return content;
+  }
+
+  //function to validate the pin from the file
+  void accountValidation(var pin) {
+    var password = readFile().elementAt(1).split(' ');
 
     if (password.elementAt(1) == pin) {
       print("Account found");
-      menuSection(content);
+      menuSection();
     } else {
       print("Account not found");
       return;
@@ -15,8 +23,8 @@ class operation {
   }
 
   //function for menu
-  void menuSection(var content) {
-    int transaction;
+  void menuSection() {
+    var transaction;
 
     print('\n\n\n\n\t ---- TRANSACTION ---- ');
     print('\t|  [1] DEPOSIT        |');
@@ -26,34 +34,37 @@ class operation {
     print('\t ---------------------');
 
     do {
-      stdout.write('\n\t>> Transaction: ');
-      transaction = int.parse(stdin.readLineSync()!);
-    } while (transaction < 1 || transaction > 4);
+      do {
+        stdout.write('\n\t>> Transaction: ');
+        transaction = stdin.readLineSync();
+      } while (int.parse(transaction) < 1 || int.parse(transaction) > 4);
 
-    if (transaction == 1) {
-      depositOption(content);
-    } else if (transaction == 2) {
-      withdrawOption(content);
-    } else if (transaction == 3) {
-      balanceOption(content);
-    } else if (transaction == 4) {
-      print('\tLOGGING OUT\n\n');
-      return main();
-    }
+      if (int.parse(transaction) == 1) {
+        depositOption();
+      }
+      if (int.parse(transaction) == 2) {
+        withdrawOption();
+      }
+      if (int.parse(transaction) == 3) {
+        balanceOption();
+      }
+      if (int.parse(transaction) == 4) {
+        print('\tLOGGING OUT\n\n');
+        return main();
+      }
+    } while (int.parse(transaction) != 4);
   }
 
   //function for depositing transaction
-  void depositOption(var content) {
-    var last = content.length; //to get the last element of the file
+  void depositOption() {
+    var last = readFile().length; //to get the last element of the file
     var sink = File('accountRecord.txt'); //for appending to the file
     print('\n\n\t\tDEPOSIT');
 
     //last - 1; index starts with 0
-    var balance = content.elementAt(last - 1).split(' ');
+    var balance = readFile().elementAt(last - 1).split(' ');
     balance = (double.parse(balance.elementAt(1)).toStringAsFixed(2));
 
-    //prints current account balance
-    print('\t>> BALANCE: P ' + balance);
     stdout.write('\n\t>> AMOUNT TO DEPOSIT: P ');
     var depositAmount =
         (double.parse(stdin.readLineSync()!).toStringAsFixed(2));
@@ -68,19 +79,19 @@ class operation {
         mode: FileMode.append);
     print('\n\t>> UPDATED BALANCE: P ' + newBalance.toStringAsFixed(2));
 
-    return menuSection(content);
+    return menuSection();
   }
 
   //function containing withdrawal transaction
-  void withdrawOption(var content) {
-    var last = content.length; //to get the last element of the file
+  void withdrawOption() {
+    var last = readFile().length; //to get the last element of the file
     var sink = File('accountRecord.txt'); //for appending to the file
     var withdrawAmount;
 
     print('\n\n\t\tWITHDRAW');
 
     //last - 1; index starts with 0
-    var balance = content.elementAt(last - 1).split(' ');
+    var balance = readFile().elementAt(last - 1).split(' ');
     balance = (double.parse(balance.elementAt(1)).toStringAsFixed(2));
 
     //prints current account balance
@@ -102,33 +113,19 @@ class operation {
         mode: FileMode.append);
     print('\n\t>> UPDATED BALANCE: P ' + newBalance.toStringAsFixed(2));
 
-    return menuSection(content);
+    return menuSection();
   }
 
   //function for checking of balance transaction
-  void balanceOption(var content) {
-    //to get the last element of the file
-    var last = content.length;
+  void balanceOption() {
+    var last = readFile().length; //to get the last element of the file
     print('\n\n\t\tBALANCE INQUIRY');
 
-    //last - 1; index starts with 0
-    var balance = content.elementAt(last - 1).split(' ');
-    balance = checkBalance(content);
+    var balance = readFile().elementAt(last - 1).split(' ');
+    balance = balance.elementAt(1);
 
-    //prints current account balance
     print('\t>> BALANCE: P ' + balance);
 
-    return menuSection(content);
-  }
-
-  //function to check the balance before proceeding to transact
-  String checkBalance(var content) {
-    var last = content.length; //to get the last element of the file
-
-    //last - 1; index starts with 0
-    var balance = content.elementAt(last - 1).split(' ');
-    balance = (double.parse(balance.elementAt(1)).toStringAsFixed(2));
-
-    return balance;
+    return menuSection();
   }
 }
