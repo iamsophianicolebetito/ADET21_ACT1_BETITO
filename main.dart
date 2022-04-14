@@ -27,13 +27,8 @@ userLogin(var content) {
 //function for menu
 menuSection() {
   var transaction;
-
-  print('\n\n\n\n\t ---- TRANSACTION ---- ');
-  print('\t|  [1] DEPOSIT        |');
-  print('\t|  [2] WITHDRAW       |');
-  print('\t|  [3] CHECK BALANCE  |');
-  print('\t|  [4] LOGOUT         |');
-  print('\t ---------------------');
+  printChoices show = printMenu;
+  show(operate);
 
   do {
     stdout.write('\n\t>> Transaction: ');
@@ -55,4 +50,15 @@ menuSection() {
   }
 }
 
+//typedef function to show the transaction options
+printMenu(operation operate) {
+  print('\n\n\n\n\t ---- TRANSACTION ---- ');
+  print('\t|  [1] DEPOSIT        |');
+  print('\t|  [2] WITHDRAW       |');
+  print('\t|  [3] CHECK BALANCE  |');
+  print('\t|  [4] LOGOUT         |');
+  print('\t ---------------------');
+}
+
+typedef printChoices(operation operate);
 ErrorMessage() => print("\tInvalid input. Try again.");
